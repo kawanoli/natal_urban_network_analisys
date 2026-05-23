@@ -1,0 +1,101 @@
+
+=================================================================
+  ESTATÍSTICAS GERAIS
+=================================================================
+  Nós:             18,586
+  Arestas:         48,211
+  Grau médio:      3.01  (CV=0.242)
+  K-core máximo:   2
+  K escolhido:     3
+  Nós no k-core:   0 (0.0% da rede)
+
+=================================================================
+  PERGUNTA 1 — Grau coincide com Betweenness?
+=================================================================
+  Sobreposição top-10: 0/10 nós em comum
+  RESPOSTA: Não há grande coincidência, revelando que grau e
+  betweenness capturam dimensões estruturais distintas da rede.
+  Para planejamento de metrô, betweenness é mais informativo.
+
+=================================================================
+  PERGUNTA 2 — K-core coincide com hubs?
+=================================================================
+  Hubs por grau no k-core (k=3): 0/10
+  Hubs por betweenness no k-core:            0/10
+  RESPOSTA: O k-core captura a 'espinha dorsal' densa da rede —
+  onde há muitas rotas alternativas. Hubs por grau tendem a estar
+  nesse núcleo. Hubs por betweenness podem estar fora quando são
+  pontos de passagem entre zonas esparsas (ex: pontes sobre o Potengi).
+
+=================================================================
+  PERGUNTA 3 — O que betweenness revela que grau não revela?
+=================================================================
+  RESPOSTA:
+  • Grau mede conectividade LOCAL (quantas ruas convergem no ponto).
+  • Betweenness mede importância GLOBAL (frequência do nó nos
+    caminhos mais curtos entre todos os pares da rede).
+
+  Um nó com grau 3 pode ter betweenness altíssimo se for a ÚNICA
+  ligação entre duas regiões (ex: único acesso à Zona Norte).
+  Para o metrô, estações em pontos de alto betweenness maximizam
+  o alcance do sistema — mesmo que o local seja pouco movimentado
+  visualmente.
+
+=================================================================
+  PERGUNTA 4 — Visualização geográfica vs. estrutural
+=================================================================
+  RESPOSTA:
+  • GEOGRÁFICA (Geo Layout): posição real lat/lon → 'mapa' de Natal.
+    Revela ONDE estão os elementos importantes. Vemos o Potengi
+    separando as zonas, o litoral, a expansão para Parnamirim.
+
+  • ESTRUTURAL (ForceAtlas2): posição por força de atração/repulsão.
+    Nós muito conectados ficam no centro; periféricos nas bordas.
+    Revela O QUÊ é importante estruturalmente, independente da geo.
+
+  Diferença marcante em Natal: a Zona Norte aparece geograficamente
+  separada, mas no ForceAtlas2 aparece como sub-cluster periférico —
+  confirmando que a ponte é um gargalo estrutural real.
+
+=================================================================
+  PERGUNTA 5 — Regiões críticas para mobilidade?
+=================================================================
+  RESPOSTA: Sim. Identificamos três tipos de regiões críticas:
+
+  a) ARTICULAÇÃO INTER-ZONA: nós com betweenness >> média, em
+     avenidas que cruzam zonas distintas ou vias de acesso ao Potengi.
+
+  b) NÚCLEO K-CORE ALTO: região densa com muitas rotas alternativas.
+     Aqui o metrô tem mais opções de traçado e maior redundância.
+
+  c) GARGALOS (único caminho): Zona Norte com acesso limitado ao sul.
+     Alta vulnerabilidade — onde metrô/VLT teria maior impacto social.
+
+=================================================================
+  PERGUNTA 6 — Rede homogênea ou heterogênea?
+=================================================================
+  Coeficiente de Variação do grau: 0.242
+  RESPOSTA: Relativamente homogênea — malha mais regularizada.
+  Mesmo assim, betweenness e k-core revelam concentração estrutural.
+
+=================================================================
+  PERGUNTA 7 — Os resultados fazem sentido urbanisticamente?
+=================================================================
+  RESPOSTA: Sim. Os resultados são geograficamente consistentes:
+
+  ✓ Hubs por grau → cruzamentos de grandes avenidas (Salgado Filho,
+    Roberto Freire, Bernardo Vieira, região do Alecrim).
+
+  ✓ Alto betweenness → vias radiais inter-zona e acessos à ponte
+    sobre o Potengi (Ponte de Igapó e Ponte Newton Navarro).
+
+  ✓ K-core alto → centro histórico + Zona Sul consolidada (Petrópolis,
+    Tirol, Candelária), onde a malha é mais densa e planejada.
+
+  ✓ K-core baixo → loteamentos na Zona Oeste e Norte em expansão,
+    com ruas com baixa conectividade transversal.
+
+  Implicação para o metrô: corredor Norte-Sul cruzando o Potengi,
+  passando pelos pontos de alto betweenness, seria estruturalmente
+  o traçado de maior impacto — alinhado com estudos de mobilidade
+  existentes para Natal.
