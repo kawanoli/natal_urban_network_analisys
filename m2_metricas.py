@@ -57,6 +57,12 @@ def calcular_metricas(G: nx.MultiDiGraph) -> tuple:
     # ── 1. Converter para grafo não-dirigido simples ──────────
     print("  → Convertendo para grafo não-dirigido simples...")
     G_ud = nx.Graph(G.to_undirected())   # MultiDiGraph → Graph (arestas paralelas colapsadas)
+
+    # Remover self-loops (causam NetworkXNotImplemented no core_number)
+    selfloops = list(nx.selfloop_edges(G_ud))
+    if selfloops:
+        G_ud.remove_edges_from(selfloops)
+        print(f"     ⚠ {len(selfloops)} self-loop(s) removido(s)")
     print(f"     {G_ud.number_of_nodes()} nós, {G_ud.number_of_edges()} arestas")
 
     # ── 2. GRAU ───────────────────────────────────────────────
@@ -127,6 +133,10 @@ def calcular_metricas(G: nx.MultiDiGraph) -> tuple:
         # K-core
         "k_max":    k_max,
         "dist_core": dist_core,
+
+        # Subgrafo k-core pré-calculado (usado em m6)
+        "k_escolhido": max(3, __import__("math").ceil(k_max * 0.6)),
+        "kcore_sub":   nx.k_core(G_ud, k=max(3, __import__("math").ceil(k_max * 0.6))),
 
         # Grafo não-dirigido (usado em m4 e m3)
         "G_ud": G_ud,

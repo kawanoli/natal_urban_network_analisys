@@ -21,7 +21,7 @@ import numpy as np
 import os
 
 
-ARQUIVO_SAIDA = "natal_drive.graphml"
+ARQUIVO_SAIDA = "natal_drive_completo.graphml"
 
 
 def exportar_gephi(G: nx.MultiDiGraph, metricas: dict):
@@ -56,8 +56,12 @@ def exportar_gephi(G: nx.MultiDiGraph, metricas: dict):
     G_export = _limpar_atributos(G)
 
     # ── 3. Exportar ───────────────────────────────────────────
+    # IDs únicos nas arestas (evita erro de merge no Gephi)
+    for i, (u, v, k) in enumerate(G_export.edges(keys=True)):
+        G_export[u][v][k]["id"] = f"e{i}"
+
     print(f"  → Salvando '{ARQUIVO_SAIDA}'...")
-    nx.write_graphml(G_export, ARQUIVO_SAIDA)
+    nx.write_graphml(G_export, ARQUIVO_SAIDA, edge_id_from_attribute="id")
 
     tamanho_mb = os.path.getsize(ARQUIVO_SAIDA) / (1024 * 1024)
     print(f"  ✓ Arquivo exportado: {ARQUIVO_SAIDA} ({tamanho_mb:.1f} MB)")
@@ -79,16 +83,11 @@ def _limpar_atributos(G: nx.MultiDiGraph) -> nx.MultiDiGraph:
     outros → str
     """
     def _converter(val):
-        if isinstance(val, (np.integer,)):
-            return int(val)
-        if isinstance(val, (np.floating,)):
-            return float(val)
-        if isinstance(val, (np.bool_,)):
-            return bool(val)
-        if isinstance(val, (np.ndarray,)):
-            return val.tolist()
-        # listas e outros tipos complexos → string (gephi lê como rótulo)
-        if isinstance(val, (list, dict, set)):
+        if isinstance(val, np.integer):  return int(val)
+        if isinstance(val, np.floating): return float(val)
+        if isinstance(val, np.bool_):    return bool(val)
+        # Qualquer tipo não primitivo (shapely, listas, dicts…) → string
+        if not isinstance(val, (int, float, str, bool)):
             return str(val)
         return val
 

@@ -48,6 +48,7 @@ Isso torna Natal um caso de estudo ideal para demonstrar como teoria dos grafos 
 ├── m3_analise.py               # Análise e respostas às 7 perguntas
 ├── m4_visualizacao.py          # Visualizações matplotlib + folium
 ├── m5_exportacao.py            # Exportação .graphml para Gephi
+├── m6_estacoes.py              # Visualização das estações criadas
 └── README.md
 ```
 
@@ -103,29 +104,13 @@ No **Google Colab**, execute a célula da Seção 0 do notebook; ela vai instala
 ```bash
 python main.py
 ```
+Por meio da execução da main.py, todos os módulos serão executados subsequentemente; a main.py funciona como um orquestrador para o sistema, importando os módulos necessários, que estão subdivididos nos .py que começam com m1 à m5.
 
 ---
 
-## 📐 Decisões técnicas
-
-### Por que `network_type="drive"`?
+## Por que `network_type="drive"`?
 Utilizamos o tipo `drive` porque o objetivo é analisar mobilidade urbana de ônibus e metrô, que compartilham a infraestrutura viária de veículos motorizados. Ciclovias e calçadas não são relevantes para o traçado de metrô.
 
-### Por que converter para grafo não-dirigido?
-
-| Métrica | Grafo usado | Justificativa |
-|---|---|---|
-| Grau in/out | MultiDiGraph original | Preserva informação direcional |
-| Grau total | Graph não-dirigido | Definição clássica de grau |
-| Betweenness | Graph não-dirigido | Maioria das vias em Natal é mão dupla |
-| Closeness | Graph não-dirigido | Idem |
-| K-core | Graph não-dirigido | Algoritmo de peeling exige grafo simples |
-
-### Por que `k=500` na amostragem do betweenness?
-O cálculo exato de betweenness para ~18k nós teria complexidade O(VE), levando dezenas de minutos. Com `k=500` pares amostrados aleatoriamente obtemos uma aproximação com erro relativo < 5% nos nós mais importantes, em ~2 minutos.
-
-### Como o valor de k é escolhido para o k-core?
-Usamos `k = ceil(k_max × 0.6)` — 60% do core máximo da rede. Isso garante um núcleo denso o suficiente para revelar a espinha dorsal urbana, mas geograficamente amplo o suficiente para cobrir múltiplas regiões de Natal, não apenas um único bairro.
 
 ---
 
@@ -183,10 +168,23 @@ Importe o arquivo `natal_drive_completo.graphml` no **Gephi Desktop** (gephi.org
 
 Preserva a forma real de Natal. Permite identificar geograficamente onde estão os hubs, o núcleo k-core e os gargalos de mobilidade.
 
+#### Visualização com Geo Layout no Gephi:
+
+<p align="center">
+  <img src="imagens/geolayout100_000.png" width="45%" />
+  <img src="imagens/geolayout_450_000.png" width="45%" />
+</p>
+
 ### Visualização estrutural (9.2)
 `Layout → ForceAtlas2 → Escala: 10 | Gravidade: 5 | LinLog: ✅ → Executar`
 
 Revela a organização estrutural independente da geografia. Nós muito conectados gravitam para o centro; periféricos ficam nas bordas.
+
+#### Visualização com ForceAtlas2 no Gephi:
+
+<p align="center">
+  <img src="imagens/forceatlas2.png" width="45%" />
+</p>
 
 ### Codificação visual obrigatória
 - **Tamanho** → `Aparência → Nós → Tamanho → Ranking → grau` (min: 2, max: 20)
@@ -198,32 +196,38 @@ Revela a organização estrutural independente da geografia. Nós muito conectad
 
 `Filtros → Atributos → Intervalo → core_number` — defina o mínimo como K_ESCOLHIDO (ver output da Seção 3 do notebook) para visualizar o subgrafo k-core.
 
+#### Visualização do Geo Layout com os filtros aplicados:
+
+<p align="center">
+  <img src="imagens/geolayout_comfiltros.png" width="45%" />
+</p>
+
 ---
 
-## 💬 Respostas às 7 perguntas obrigatórias
+## 💬 Respostas às 7 perguntas teóricas
 
-As respostas completas e baseadas nos dados reais de Natal são geradas automaticamente no arquivo `relatorio_analise.txt` ao executar o notebook. Um resumo:
+As respostas completas e baseadas nos dados reais de Natal estão no arquivo `relatorio_analise.txt` também. Um resumo:
 
 **1. Os nós com maior grau coincidem com os de maior betweenness?**
 Parcialmente. Grandes cruzamentos (alto grau) nem sempre são os pontos mais críticos para o fluxo geral (alto betweenness). Corredores que ligam zonas distintas dominam o betweenness sem ter o maior número de interseções.
 
 **2. O núcleo k-core coincide com os principais hubs?**
-Os hubs por grau tendem a estar no k-core. Os hubs por betweenness podem estar fora — especialmente pontos de travessia entre zonas esparsas como as pontes sobre o Potengi.
+Os hubs por grau tendem a estar no k-core. Os hubs por betweenness podem estar fora, especialmente pontos de travessia entre zonas esparsas como as pontes sobre o Potengi.
 
 **3. O que betweenness revela que grau não revela?**
-A importância global do nó para o fluxo de toda a rede. Um nó com grau 3 pode ter betweenness altíssimo se for a única ligação entre dois bairros — informação invisível para o grau.
+A importância global do nó para o fluxo de toda a rede. Um nó com grau 3 pode ter betweenness altíssimo se for a única ligação entre dois bairros, informação invisível para o grau.
 
 **4. O que muda entre a visualização geográfica e a estrutural?**
-A geográfica revela *onde* estão os elementos importantes. A estrutural (ForceAtlas2) revela *o quê* é importante estruturalmente — o núcleo denso aparece no centro, a periferia nas bordas, independente da posição real na cidade.
+A geográfica revela *onde* estão os elementos importantes. A estrutural (ForceAtlas2) revela *o quê* é importante estruturalmente: o núcleo denso aparece no centro, a periferia nas bordas, independente da posição real na cidade.
 
 **5. Existem regiões críticas para mobilidade?**
-Sim: os acessos à Zona Norte (pontes sobre o Potengi) e os corredores radiais que ligam zonas distintas concentram betweenness desproporcional — gargalos estruturais onde intervenções de transporte público teriam maior impacto.
+Sim: os acessos à Zona Norte (pontes sobre o Potengi) e os corredores radiais que ligam zonas distintas concentram betweenness desproporcional; gargalos estruturais onde intervenções de transporte público teriam maior impacto.
 
 **6. A rede é homogênea ou heterogênea?**
-Heterogênea. A distribuição de grau tem cauda longa — a maioria dos nós tem grau 2–4, mas poucos concentram muitas conexões. Característico de cidades que cresceram sem planejamento de grid regular.
+Heterogênea. A distribuição de grau tem cauda longa; a maioria dos nós tem grau 2–4, mas poucos concentram muitas conexões. Característico de cidades que cresceram sem planejamento de grid regular.
 
 **7. Os resultados fazem sentido urbanisticamente?**
-Sim. Os hubs por grau coincidem com grandes cruzamentos de avenidas conhecidas; o k-core alto concentra-se na região central e Zona Sul consolidada; a Zona Norte aparece como subcluster periférico — consistente com a realidade urbana de Natal.
+Sim. Os hubs por grau coincidem com grandes cruzamentos de avenidas conhecidas; o k-core alto concentra-se na região central e Zona Sul consolidada; a Zona Norte aparece como subcluster periférico, consistente então com a realidade urbana de Natal.
 
 ---
 
@@ -235,13 +239,6 @@ A análise aponta três critérios estruturais para o traçado ideal:
 2. **Travessia do Potengi** — o gargalo estrutural mais crítico da rede; qualquer intervenção aqui tem impacto desproporcional na mobilidade
 3. **Cobertura do k-core periférico** — bairros fora do núcleo denso têm menos alternativas de rota e maior dependência de transporte público
 
-Esses três critérios convergem para um corredor **Norte-Sul** como o traçado de maior impacto estrutural — alinhado com os estudos de mobilidade urbana historicamente discutidos para Natal.
+Esses três critérios convergem para um corredor **Norte-Sul** como o traçado de maior impacto estrutural, estando o máximo alinhado com os estudos de mobilidade urbana historicamente discutidos para Natal.
 
 ---
-
-## 📚 Referências
-
-- Boeing, G. (2017). OSMnx: New methods for acquiring, constructing, analyzing, and visualizing complex street networks. *Computers, Environment and Urban Systems*, 65, 126–139.
-- Newman, M. E. J. (2010). *Networks: An Introduction*. Oxford University Press.
-- Bastian, M., Heymann, S., & Jacomy, M. (2009). Gephi: An open source software for exploring and manipulating networks. *ICWSM*.
-- OpenStreetMap contributors (2024). OpenStreetMap. https://www.openstreetmap.org

@@ -30,37 +30,42 @@ def main():
     sys.path.insert(0, os.path.dirname(__file__))
 
     # ── Módulo 1: Coleta da rede viária ──────────────────────
-    print("\n[1/5] Coletando rede viária via OSMnx...")
+    print("\n[1/6] Coletando rede viária via OSMnx...")
     from m1_coleta import coletar_rede
     G = coletar_rede()
 
     # ── Módulo 2: Cálculo de métricas ────────────────────────
-    print("\n[2/5] Calculando métricas estruturais (NetworkX)...")
+    print("\n[2/6] Calculando métricas estruturais (NetworkX)...")
     from m2_metricas import calcular_metricas
     G, metricas = calcular_metricas(G)
 
     # ── Módulo 3: Análise e respostas ─────────────────────────
-    print("\n[3/5] Analisando resultados e respondendo perguntas...")
+    print("\n[3/6] Analisando resultados e respondendo perguntas...")
     from m3_analise import analisar_rede
     analisar_rede(G, metricas)
 
     # ── Módulo 4: Visualizações ───────────────────────────────
-    print("\n[4/5] Gerando visualizações (matplotlib + folium)...")
+    print("\n[4/6] Gerando visualizações (matplotlib + folium)...")
     from m4_visualizacao import gerar_visualizacoes
     gerar_visualizacoes(G, metricas)
 
     # ── Módulo 5: Exportação para Gephi ──────────────────────
-    print("\n[5/5] Exportando .graphml para o Gephi...")
+    print("\n[5/6] Exportando .graphml para o Gephi...")
     from m5_exportacao import exportar_gephi
     exportar_gephi(G, metricas)
+
+    # ── Módulo 6: Proposta de estações de metrô ───────────────
+    print("\n[6/6] Gerando proposta de estações de metrô...")
+    from m6_estacoes import gerar_mapa_metro
+    gerar_mapa_metro(G, metricas)
 
     print("\n" + "=" * 60)
     print("  Pipeline concluído com sucesso!")
     print("  Arquivos gerados:")
-    print("    • natal_drive.graphml   → importe no Gephi")
-    print("    • mapa_natal.html       → visualização geográfica")
-    print("    • graficos/             → distribuições e subgrafos")
-    print("    • relatorio_analise.txt → respostas às 7 perguntas")
+    print("    • natal_drive.graphml        → importe no Gephi")
+    print("    • mapa_natal.html            → visualização geográfica")
+    print("    • mapa_metro_proposto.html   → corredor e estações")
+    print("    • graficos/                  → distribuições e subgrafos")
     print("=" * 60)
 
 
